@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Search</title></head>
+<body>
+<h1>Search</h1>
+<form method="post" action="/search" onsubmit="return validate()">
+  <input type="text" id="term" name="term" required minlength="3" maxlength="50"
+         pattern="[A-Za-z0-9 .,'\-]{3,50}" title="3-50 chars: letters, digits, space . , ' -">
+  <button type="submit">Search</button>
+</form>
+<script>
+function validate() {                      // C3 frontend: same allowlist
+  const t = document.getElementById("term");
+  if (!/^[A-Za-z0-9 .,'-]{3,50}$/.test(t.value)) { t.value = ""; return false; }
+  return true;
+}
+</script>
+</body>
+</html>

@@ -1,9 +1,13 @@
 import os, re
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for
+from flask_wtf import CSRFProtect
 import pymysql
 
+
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ["FLASK_SECRET_KEY"]
+csrf = CSRFProtect(app)
 
 # C3: allowlist — letters, digits, spaces, basic punctuation; 3–50 chars
 PATTERN = re.compile(r"^[A-Za-z0-9 .,'-]{3,50}$")
@@ -29,4 +33,6 @@ def search():
     return render_template("result.html", term=term)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    # Binds to all interfaces intentionally: containerized app behind
+    # nginx reverse proxy; exposure controlled by compose port mapping.
+    app.run(host=os.environ.get("BIND_HOST", "0.0.0.0"), port=5000)

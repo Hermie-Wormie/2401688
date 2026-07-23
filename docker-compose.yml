@@ -3,12 +3,11 @@ services:
     build: ./web
     container_name: web
     ports:
-      - "80:80"
-      - "443:443"
+      - "80:8080"
+      - "443:8443"
     volumes:
       - ./web/html:/usr/share/nginx/html:ro
       - ./web/.htpasswd:/etc/nginx/.htpasswd:ro
-      - ./web/certs:/etc/nginx/certs:ro
     restart: unless-stopped
     networks:
       - appnet
@@ -34,6 +33,7 @@ services:
       - DB_USER=appuser
       - DB_PASSWORD=2401688@SIT.singaporetech.edu.sg
       - DB_NAME=searchdb
+      - FLASK_SECRET_KEY=b7f3e9d1c4a852f6e0d9b3c7a1f5e8d2
     depends_on:
       db:
         condition: service_healthy
@@ -62,7 +62,7 @@ services:
     restart: unless-stopped
     networks:
       - appnet
-
+  
   sonarqube:
     image: sonarqube:community
     container_name: sonarqube
@@ -75,6 +75,19 @@ services:
       - sonarqube-extensions:/opt/sonarqube/extensions
       - sonarqube-logs:/opt/sonarqube/logs
     restart: unless-stopped
+    networks:
+      - appnet
+
+  sonarqube-init:
+    image: curlimages/curl:8.10.1
+    container_name: sonarqube-init
+    depends_on:
+      - sonarqube
+    entrypoint: >
+      sh -c "
+      until curl -s http://sonarqube:9000/api/system/status | grep -q UP; do sleep 5; done;
+      curl -s -u admin:admin -X POST 'http://sonarqube:9000/api/users/change_password?login=admin&previousPassword=admin&password=2401688%40SIT.singaporetech.edu.sg' || true"
+    restart: "no"
     networks:
       - appnet
 

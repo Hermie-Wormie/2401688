@@ -31,10 +31,24 @@ def test_valid_search_shows_result():
 def test_attack_input_stays_home_and_clears():
     d = make_driver()
     d.get(BASE)
-    box = d.find_element(By.ID, "term")
-    d.execute_script("document.getElementById('term').value = \"<script>alert(1)</script>\"")
+    # strip declarative HTML5 checks to exercise the JS validation layer
+    d.execute_script("""
+        const t = document.getElementById('term');
+        t.removeAttribute('pattern');
+        t.removeAttribute('minlength');
+        t.value = "<script>alert(1)</scr" + "ipt>";
+    """)
     d.find_element(By.XPATH, "//button[@type='submit']").click()
     time.sleep(1)
-    assert d.current_url.rstrip("/") == BASE          # still home
-    assert d.find_element(By.ID, "term").get_attribute("value") == ""  # cleared
+    assert d.current_url.rstrip("/") == BASE                            # still home
+    assert d.find_element(By.ID, "term").get_attribute("value") == ""   # JS cleared it
+    d.quit()
+
+def test_html5_pattern_blocks_submit():
+    d = make_driver()
+    d.get(BASE)
+    d.find_element(By.ID, "term").send_keys("<script>")
+    d.find_element(By.XPATH, "//button[@type='submit']").click()
+    time.sleep(1)
+    assert d.current_url.rstrip("/") == BASE   # constraint validation stopped the form
     d.quit()

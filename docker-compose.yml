@@ -40,6 +40,8 @@ services:
     restart: unless-stopped
     networks:
       - appnet
+    ports:
+      - "5000:5000"
 
   db:
     image: mariadb:11.4

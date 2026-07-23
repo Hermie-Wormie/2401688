@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start stack
+        run: docker compose up -d --build
+      - name: Wait for app
+        run: |
+          for i in $(seq 1 30); do
+            curl -s http://localhost:5000/ | grep -q form && exit 0
+            sleep 2
+          done
+          docker compose logs; exit 1
+      - name: Valid search returns result page
+        run: |
+          curl -s -X POST http://localhost:5000/search -d "term=hello world" | grep -q "You searched for: hello world"
+      - name: SQLi is rejected with redirect
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/search --data-urlencode "term=' OR 1=1--")
+          [ "$code" = "302" ]
+      - name: Valid query is logged in DB
+        run: |
+          docker compose exec -T db mariadb -uappuser -p"2401688@sit.singaporetech.edu.sg" searchdb -e "SELECT query FROM \`2401688\`;" | grep -q "hello world"
+      - name: Tear down
+        if: always()
+        run: docker compose down
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: "2401688"
+          path: "."
+          format: "HTML"
+          args: --enableExperimental
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-check-report
+          path: reports/
+
+  ui-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start stack
+        run: docker compose up -d --build
+      - name: Wait for app
+        run: |
+          for i in $(seq 1 30); do
+            curl -s http://localhost:5000/ | grep -q form && exit 0
+            sleep 2
+          done
+          docker compose logs; exit 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run Selenium UI tests
+        run: |
+          pip install selenium pytest
+          pytest tests/test_ui.py -v
+      - name: Tear down
+        if: always()
+        run: docker compose down

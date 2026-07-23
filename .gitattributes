@@ -1,0 +1,7 @@
+* text=auto
+*.crt text eol=lf
+*.key text eol=lf
+*.conf text eol=lf
+*.yml text eol=lf
+*.sh text eol=lf
+.htpasswd text eol=lf

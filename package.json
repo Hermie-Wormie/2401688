@@ -1,0 +1,12 @@
+{
+  "name": "2401688",
+  "private": true,
+  "devDependencies": {
+    "eslint": "^9.9.0",
+    "eslint-plugin-security": "^3.0.1",
+    "eslint-plugin-html": "^8.1.1"
+  },
+  "scripts": {
+    "lint": "eslint \"app/templates/**/*.html\""
+  }
+}

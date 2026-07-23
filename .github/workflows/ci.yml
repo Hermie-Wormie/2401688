@@ -75,3 +75,15 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose down
+
+  eslint-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install ESLint and security plugins
+        run: npm install
+      - name: Run ESLint security scan
+        run: npm run lint

@@ -29,7 +29,7 @@ jobs:
           [ "$code" = "302" ]
       - name: Valid query is logged in DB
         run: |
-          docker compose exec -T db mariadb -uappuser -p"2401688@sit.singaporetech.edu.sg" searchdb -e "SELECT query FROM \`2401688\`;" | grep -q "hello world"
+          docker compose exec -T db mariadb -uappuser -p"2401688@SIT.singaporetech.edu.sg" searchdb -e "SELECT query FROM \`2401688\`;" | grep -q "hello world"
       - name: Tear down
         if: always()
         run: docker compose down

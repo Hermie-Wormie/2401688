@@ -32,7 +32,7 @@ services:
     environment:
       - DB_HOST=db
       - DB_USER=appuser
-      - DB_PASSWORD=2401688@sit.singaporetech.edu.sg
+      - DB_PASSWORD=2401688@SIT.singaporetech.edu.sg
       - DB_NAME=searchdb
     depends_on:
       db:
@@ -47,10 +47,10 @@ services:
     image: mariadb:11.4
     container_name: db
     environment:
-      - MARIADB_ROOT_PASSWORD=2401688@sit.singaporetech.edu.sg
+      - MARIADB_ROOT_PASSWORD=2401688@SIT.singaporetech.edu.sg
       - MARIADB_DATABASE=searchdb
       - MARIADB_USER=appuser
-      - MARIADB_PASSWORD=2401688@sit.singaporetech.edu.sg
+      - MARIADB_PASSWORD=2401688@SIT.singaporetech.edu.sg
     volumes:
       - db-data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -63,8 +63,26 @@ services:
     networks:
       - appnet
 
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+      - sonarqube-logs:/opt/sonarqube/logs
+    restart: unless-stopped
+    networks:
+      - appnet
+
 volumes:
   db-data:
+  sonarqube-data:
+  sonarqube-extensions:
+  sonarqube-logs:
 
 networks:
   appnet:

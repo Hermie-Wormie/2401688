@@ -1,0 +1,18 @@
+services:
+  web:
+    build: ./web
+    container_name: web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./web/html:/usr/share/nginx/html:ro
+      - ./web/.htpasswd:/etc/nginx/.htpasswd:ro
+      - ./web/certs:/etc/nginx/certs:ro
+    restart: unless-stopped
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge

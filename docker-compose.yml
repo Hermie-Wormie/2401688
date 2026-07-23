@@ -12,6 +12,17 @@ services:
     restart: unless-stopped
     networks:
       - appnet
+  gitserver:
+    image: rockstorm/git-server:2.45
+    container_name: gitserver
+    ports:
+      - "2222:22"
+    volumes:
+      - ./git-server/repos:/srv/git
+      - ./git-server/keys:/tmp/keys:ro
+    restart: unless-stopped
+    networks:
+      - appnet
 
 networks:
   appnet:

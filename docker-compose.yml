@@ -21,6 +21,7 @@ services:
     volumes:
       - ./git-server/repos:/srv/git
       - ./git-server/keys:/tmp/keys:ro
+      - ./git-server/setup-keys.sh:/docker-entrypoint.d/20-keys.sh:ro
     restart: unless-stopped
     networks:
       - appnet
